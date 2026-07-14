@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เช็คสถานะบัตรพนักงาน | UNITECH PCB</title>
+<style>
+  :root{
+    --primary:#0f4c81;
+    --primary-dark:#0a3459;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --pending:#d97706;
+    --pending-bg:#fef3c7;
+    --done:#2563eb;
+    --done-bg:#dbeafe;
+    --received:#16a34a;
+    --received-bg:#dcfce7;
+    --error:#dc2626;
+    --error-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Sarabun","Prompt","Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(15,76,129,0.12);
+    padding:36px 28px;
+    width:100%;
+    max-width:420px;
+  }
+  .logo-row{
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .logo-row .icon{
+    font-size:40px;
+  }
+  h1{
+    font-size:20px;
+    text-align:center;
+    margin:8px 0 4px;
+    color:var(--primary-dark);
+  }
+  p.sub{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    margin:0 0 24px;
+  }
+  label{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:8px;
+    color:var(--text);
+  }
+  .input-row{
+    display:flex;
+    gap:10px;
+  }
+  input[type="text"]{
+    flex:1;
+    padding:14px 16px;
+    border:2px solid #e5e7eb;
+    border-radius:10px;
+    font-size:16px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type="text"]:focus{
+    border-color:var(--primary);
+  }
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:0 22px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+    transition:background .15s;
+  }
+  button:hover{ background:var(--primary-dark); }
+  button:disabled{ background:#9ca3af; cursor:not-allowed; }
+
+  .result{
+    margin-top:24px;
+    border-radius:12px;
+    padding:20px;
+    display:none;
+  }
+  .result.show{ display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .result .name{
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:15px;
+  }
+  .status-badge .dot{
+    width:10px; height:10px; border-radius:50%;
+  }
+  .status-pending{ background:var(--pending-bg); color:var(--pending); }
+  .status-pending .dot{ background:var(--pending); }
+  .status-done{ background:var(--done-bg); color:var(--done); }
+  .status-done .dot{ background:var(--done); }
+  .status-received{ background:var(--received-bg); color:var(--received); }
+  .status-received .dot{ background:var(--received); }
+  .status-error{ background:var(--error-bg); color:var(--error); }
+  .status-error .dot{ background:var(--error); }
+
+  .note{
+    margin-top:12px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .appointment{
+    margin-top:14px;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:14px;
+    color:var(--primary-dark);
+    line-height:1.6;
+  }
+  .appointment .apt-title{
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .footer-note{
+    margin-top:28px;
+    text-align:center;
+    font-size:12px;
+    color:#9ca3af;
+  }
+  .steps{
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px dashed #e5e7eb;
+  }
+  .steps ol{
+    margin:0;
+    padding-left:18px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-row"><span class="icon">🪪</span></div>
+  <h1>เช็คสถานะบัตรพนักงาน</h1>
+  <p class="sub">UNITECH PCB (Thailand) — กรอกรหัสพนักงานเพื่อตรวจสอบสถานะ</p>
+
+  <label for="empCode">รหัสพนักงาน</label>
+  <div class="input-row">
+    <input type="text" id="empCode" placeholder="เช่น 12345" inputmode="numeric" autocomplete="off">
+    <button id="checkBtn" onclick="checkStatus()">เช็คเลย</button>
+  </div>
+
+  <div class="result" id="resultBox">
+    <div class="name" id="nameLine"></div>
+    <div id="badgeLine"></div>
+    <div class="appointment" id="appointmentLine" style="display:none;"></div>
+    <div class="note" id="noteLine"></div>
+  </div>
+
+  <div class="steps" id="stepsBox" style="display:none;">
+    <ol id="stepsList"></ol>
+  </div>
+
+  <p class="footer-note">หากรหัสไม่พบในระบบ หรือมีข้อสงสัย ติดต่อฝ่าย HR</p>
+</div>
+
+<script>
+// ⚠️ แก้ URL นี้เป็น URL ของ Google Apps Script Web App ที่ deploy แล้ว
+const API_URL = "https://script.google.com/macros/s/AKfycbz2moHTKAPBkx-3Z5YpJTUeR24F-woL_it31BsSD_Qad5h_EMycGWXnXVG6XSk5D-nfJg/exec";
+
+const STATUS_MAP = {
+  "อยู่ระหว่างดำเนินการ": { cls: "status-pending",  label: "🟡 อยู่ระหว่างดำเนินการ" },
+  "ทำเสร็จแล้ว":          { cls: "status-done",     label: "🔵 ทำบัตรเสร็จแล้ว รอเรียกรับ" },
+  "รับบัตรแล้ว":          { cls: "status-received", label: "🟢 รับบัตรเรียบร้อยแล้ว" }
+};
+
+const STEPS_MAP = {
+  "อยู่ระหว่างดำเนินการ": [
+    "ข้อมูลของคุณอยู่ระหว่างการดำเนินการทำบัตรพนักงาน",
+    "กรุณารอการแจ้งเตือนจาก HR หรือกลับมาเช็คอีกครั้งภายหลัง"
+  ],
+  "ทำเสร็จแล้ว": [
+    "บัตรพนักงานของคุณทำเสร็จเรียบร้อยแล้ว",
+    "กรุณารอการนัดหมายวันรับบัตรจาก HR"
+  ],
+  "รับบัตรแล้ว": [
+    "คุณได้รับบัตรพนักงานเรียบร้อยแล้ว",
+    "หากบัตรสูญหายหรือชำรุด ติดต่อ HR เพื่อทำบัตรใหม่"
+  ]
+};
+
+const empCodeInput = document.getElementById("empCode");
+const checkBtn = document.getElementById("checkBtn");
+const resultBox = document.getElementById("resultBox");
+const nameLine = document.getElementById("nameLine");
+const badgeLine = document.getElementById("badgeLine");
+const appointmentLine = document.getElementById("appointmentLine");
+const noteLine = document.getElementById("noteLine");
+const stepsBox = document.getElementById("stepsBox");
+const stepsList = document.getElementById("stepsList");
+
+empCodeInput.addEventListener("keydown", function(e){
+  if (e.key === "Enter") checkStatus();
+});
+
+async function checkStatus(){
+  const code = empCodeInput.value.trim();
+  if (!code){
+    showError("กรุณากรอกรหัสพนักงาน");
+    return;
+  }
+
+  checkBtn.disabled = true;
+  checkBtn.textContent = "กำลังเช็ค...";
+  resultBox.classList.remove("show");
+  stepsBox.style.display = "none";
+
+  try{
+    const res = await fetch(`${API_URL}?code=${encodeURIComponent(code)}`);
+    const data = await res.json();
+
+    if (!data.found){
+      showError("ไม่พบรหัสพนักงานนี้ในระบบ กรุณาตรวจสอบรหัสอีกครั้ง หรือติดต่อ HR");
+      return;
+    }
+
+    const statusInfo = STATUS_MAP[data.status] || { cls: "status-error", label: data.status };
+    nameLine.textContent = data.name ? `พนักงาน: ${data.name}` : "";
+    badgeLine.innerHTML = `<span class="status-badge ${statusInfo.cls}"><span class="dot"></span>${statusInfo.label}</span>`;
+    noteLine.textContent = data.note || "";
+
+    if (data.appointmentDate){
+      appointmentLine.innerHTML = `<div class="apt-title">📅 นัดทำบัตรพนักงาน</div>วันที่ ${data.appointmentDate} เวลา 08:00-16:00 น.<br>ณ ห้องสรรหา (วันจันทร์-ศุกร์)`;
+      appointmentLine.style.display = "block";
+    } else {
+      appointmentLine.style.display = "none";
+    }
+
+    resultBox.classList.add("show");
+
+    const steps = STEPS_MAP[data.status];
+    if (steps){
+      stepsList.innerHTML = steps.map(s => `<li>${s}</li>`).join("");
+      stepsBox.style.display = "block";
+    }
+
+  }catch(err){
+    showError("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+  }finally{
+    checkBtn.disabled = false;
+    checkBtn.textContent = "เช็คเลย";
+  }
+}
+
+function showError(msg){
+  nameLine.textContent = "";
+  badgeLine.innerHTML = `<span class="status-badge status-error"><span class="dot"></span>${msg}</span>`;
+  noteLine.textContent = "";
+  appointmentLine.style.display = "none";
+  resultBox.classList.add("show");
+}
+</script>
+
+</body>
+</html>
