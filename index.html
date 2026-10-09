@@ -154,8 +154,24 @@
     font-weight:700;
     margin-bottom:4px;
   }
-  .footer-note{
+  .line-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
     margin-top:28px;
+    padding:14px 16px;
+    background:#06c755;
+    color:#fff;
+    text-decoration:none;
+    font-weight:700;
+    font-size:15px;
+    border-radius:10px;
+    transition:background .15s;
+  }
+  .line-btn:hover{ background:#05a647; }
+  .footer-note{
+    margin-top:16px;
     text-align:center;
     font-size:12px;
     color:#9ca3af;
@@ -198,7 +214,11 @@
     <ol id="stepsList"></ol>
   </div>
 
-  <p class="footer-note">หากรหัสไม่พบในระบบ หรือมีข้อสงสัย ติดต่อฝ่าย HR</p>
+  <a class="line-btn" href="https://lin.ee/P0kutO9" target="_blank" rel="noopener">
+    <span class="line-icon">💬</span>
+    <span>สอบถามเรื่องบัตรพนักงานผ่าน LINE OA</span>
+  </a>
+  <p class="footer-note">หากรหัสไม่พบในระบบ หรือมีข้อสงสัยเกี่ยวกับบัตรพนักงาน ทักมาได้ที่ LINE OA ด้านบน<br>(LINE OA นี้รับเฉพาะเรื่องบัตรพนักงานเท่านั้น)</p>
 </div>
 
 <script>
